@@ -1,0 +1,43 @@
+{
+  "name": "agrimate-mobile",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^4.1.3",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@supabase/supabase-js": "^2.49.1",
+    "escape-string-regexp": "^5.0.0",
+    "expo": "~57.0.27",
+    "expo-constants": "~57.0.21",
+    "expo-image-picker": "~57.0.20",
+    "expo-linking": "~57.0.12",
+    "expo-location": "~57.0.20",
+    "expo-notifications": "~57.0.22",
+    "expo-router": "~57.0.25",
+    "expo-status-bar": "~57.0.1",
+    "lucide-react-native": "^0.475.0",
+    "query-string": "^9.5.1",
+    "react": "19.2.3",
+    "react-dom": "^19.2.3",
+    "react-hook-form": "^7.54.2",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
+    "react-native-web": "^0.21.4",
+    "use-latest-callback": "^0.3.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^8.0.7",
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3"
+  },
+  "private": true
+}

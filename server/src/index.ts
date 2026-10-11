@@ -120,12 +120,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.use('/api/ai', aiRouter);
-app.use('/api/weather', weatherRouter);
-app.use('/api/crops', cropsRouter);
-app.use('/api/tasks', tasksRouter);
-app.use('/api/soil', soilRouter);
-app.use('/api/user', userRouter);
+app.use(['/api/ai', '/ai'], aiRouter);
+app.use(['/api/weather', '/weather'], weatherRouter);
+app.use(['/api/crops', '/crops'], cropsRouter);
+app.use(['/api/tasks', '/tasks'], tasksRouter);
+app.use(['/api/soil', '/soil'], soilRouter);
+app.use(['/api/user', '/user'], userRouter);
 
 // SPA Client-Side Fallback: serve mobile index.html for all non-API web routes
 app.get('*', (req, res, next) => {

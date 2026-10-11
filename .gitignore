@@ -9,3 +9,5 @@ mobile/android/.gradle/
 *.log
 .DS_Store
 Thumbs.db
+
+.vercel

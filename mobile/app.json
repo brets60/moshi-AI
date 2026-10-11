@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "AgriMate AI",
+    "slug": "agrimate-ai",
+    "scheme": "agrimate",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.agrimate.ai"
+    },
+    "android": {
+      "package": "com.agrimate.ai",
+      "adaptiveIcon": {
+        "backgroundColor": "#1E5E3A"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}

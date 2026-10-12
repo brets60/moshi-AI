@@ -11,3 +11,5 @@ mobile/android/.gradle/
 Thumbs.db
 
 .vercel
+apk-build/build/
+apk-build/debug.keystore

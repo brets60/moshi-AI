@@ -20,6 +20,10 @@ import {
   Trash2,
   AlertTriangle,
   HelpCircle,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
 } from 'lucide-react-native';
 import { api } from '../../src/services/api';
 import { offlineStorage } from '../../src/services/offlineStorage';
@@ -80,6 +84,69 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedLang, setSelectedLang] = useState<'Tagalog' | 'Bisaya' | 'English'>('Tagalog');
+  const [isListening, setIsListening] = useState(false);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+
+  const startVoiceInput = () => {
+    if (typeof window === 'undefined') return;
+    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRec) {
+      Alert.alert(
+        'Boses / Voice Input',
+        'Hindi pa suportado ang voice recognition sa browser na ito. Subukang gamitin ang Google Chrome.'
+      );
+      return;
+    }
+    try {
+      const recognition = new SpeechRec();
+      recognition.lang = selectedLang === 'English' ? 'en-PH' : selectedLang === 'Bisaya' ? 'ceb-PH' : 'fil-PH';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event: any) => {
+        if (event.results && event.results[0] && event.results[0][0]) {
+          const transcript = event.results[0][0].transcript;
+          setInputText((prev) => (prev ? `${prev} ${transcript}` : transcript));
+        }
+        setIsListening(false);
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+      recognition.start();
+    } catch (err) {
+      console.warn('Voice input error:', err);
+      setIsListening(false);
+    }
+  };
+
+  const speakMessage = (msgId: string, text: string) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      Alert.alert('Audio Read-Aloud', 'Hindi suportado ang speech synthesis sa device na ito.');
+      return;
+    }
+    if (speakingId === msgId) {
+      window.speechSynthesis.cancel();
+      setSpeakingId(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    // Strip markdown formatting symbols for natural vocal reading
+    const cleanText = text
+      .replace(/[*#_~`>]/g, '')
+      .replace(/https?:\/\/\S+/g, '')
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = selectedLang === 'English' ? 'en-US' : 'fil-PH';
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setSpeakingId(null);
+    utterance.onerror = () => setSpeakingId(null);
+
+    setSpeakingId(msgId);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = textToSend || inputText;
@@ -262,18 +329,38 @@ export default function ChatScreen() {
                   </View>
                 )}
 
-                {/* Footer with Timestamp & Save Action */}
+                {/* Footer with Timestamp, Audio Read-Aloud, & Save Action */}
                 <View style={styles.bubbleFooter}>
                   <Text style={styles.timeText}>{msg.timestamp}</Text>
                   {msg.role === 'assistant' && (
-                    <TouchableOpacity
-                      style={styles.saveBtn}
-                      onPress={() => handleSaveAdvice(msg)}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                      <Bookmark size={14} color={Colors.primary} />
-                      <Text style={styles.saveText}>Save Advice</Text>
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <TouchableOpacity
+                        style={[styles.saveBtn, { marginRight: 12 }]}
+                        onPress={() => speakMessage(msg.id, msg.content)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      >
+                        {speakingId === msg.id ? (
+                          <>
+                            <VolumeX size={14} color="#D32F2F" />
+                            <Text style={[styles.saveText, { color: '#D32F2F' }]}>Itigil</Text>
+                          </>
+                        ) : (
+                          <>
+                            <Volume2 size={14} color={Colors.primary} />
+                            <Text style={styles.saveText}>Pakinggan</Text>
+                          </>
+                        )}
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.saveBtn}
+                        onPress={() => handleSaveAdvice(msg)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      >
+                        <Bookmark size={14} color={Colors.primary} />
+                        <Text style={styles.saveText}>Save</Text>
+                      </TouchableOpacity>
+                    </View>
                   )}
                 </View>
               </View>
@@ -354,13 +441,27 @@ export default function ChatScreen() {
 
         {/* Input Bar */}
         <View style={styles.inputBar}>
+          <TouchableOpacity
+            style={[styles.micBtn, isListening && styles.micBtnActive]}
+            onPress={startVoiceInput}
+            accessibilityLabel="Magsalita sa AI (Voice Input)"
+          >
+            {isListening ? (
+              <MicOff size={18} color="#FFFFFF" />
+            ) : (
+              <Mic size={18} color={Colors.primary} />
+            )}
+          </TouchableOpacity>
+
           <Input
             placeholder={
-              selectedLang === 'Tagalog'
-                ? 'Magtanong sa Tagalog (hal. Bakit naninilaw...)'
+              isListening
+                ? 'Nakikinig ang AgriMate... Magsalita na po!'
+                : selectedLang === 'Tagalog'
+                ? 'Magtanong sa Tagalog (o pindutin ang mic)...'
                 : selectedLang === 'Bisaya'
-                ? 'Pangutana sa Bisaya (pananglitan: Nganong dalag...)'
-                : 'Ask a question about your crops...'
+                ? 'Pangutana sa Bisaya (o pindota ang mic)...'
+                : 'Ask a question (or tap mic)...'
             }
             value={inputText}
             onChangeText={setInputText}
@@ -620,5 +721,20 @@ const styles = StyleSheet.create({
   },
   sendBtnDisabled: {
     backgroundColor: '#A5D6A7',
+  },
+  micBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#EAF5ED',
+    borderWidth: 1,
+    borderColor: '#C5E0CB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  micBtnActive: {
+    backgroundColor: '#D32F2F',
+    borderColor: '#B71C1C',
   },
 });

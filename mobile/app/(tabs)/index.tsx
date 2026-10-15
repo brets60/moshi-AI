@@ -25,6 +25,10 @@ import {
   BookOpen,
   ChevronRight,
   ShieldAlert,
+  Calculator,
+  DollarSign,
+  Receipt,
+  Bug,
 } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { useOffline } from '../../src/context/OfflineContext';
@@ -234,6 +238,58 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.shortcutTitle}>Soil Guide</Text>
             <Text style={styles.shortcutSubtitle}>pH & Fertilizers</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Smart Agricultural Tools (Bagong Kagamitan sa Pagsasaka) */}
+        <Text style={styles.sectionHeader}>Mga Bagong Gamit sa Pagsasaka</Text>
+        <View style={styles.shortcutsGrid}>
+          <TouchableOpacity
+            style={[styles.shortcutCard, { backgroundColor: '#E8F5E9' }]}
+            activeOpacity={0.8}
+            onPress={() => router.push('/calculator')}
+          >
+            <View style={[styles.shortcutIconCircle, { backgroundColor: '#C8E6C9' }]}>
+              <Calculator size={24} color="#1E5E3A" />
+            </View>
+            <Text style={styles.shortcutTitle}>Kalkulador</Text>
+            <Text style={styles.shortcutSubtitle}>Abono at Spray</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.shortcutCard, { backgroundColor: '#FFF8E1' }]}
+            activeOpacity={0.8}
+            onPress={() => router.push('/market-prices')}
+          >
+            <View style={[styles.shortcutIconCircle, { backgroundColor: '#FFECB3' }]}>
+              <DollarSign size={24} color="#F57F17" />
+            </View>
+            <Text style={styles.shortcutTitle}>Bantay Presyo</Text>
+            <Text style={styles.shortcutSubtitle}>DA Market Watch</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.shortcutCard, { backgroundColor: '#E0F2F1' }]}
+            activeOpacity={0.8}
+            onPress={() => router.push('/ledger')}
+          >
+            <View style={[styles.shortcutIconCircle, { backgroundColor: '#B2DFDB' }]}>
+              <Receipt size={24} color="#00695C" />
+            </View>
+            <Text style={styles.shortcutTitle}>Gastos at Kita</Text>
+            <Text style={styles.shortcutSubtitle}>Farm Bookkeeping</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.shortcutCard, { backgroundColor: '#FBE9E7' }]}
+            activeOpacity={0.8}
+            onPress={() => router.push('/pest-guide')}
+          >
+            <View style={[styles.shortcutIconCircle, { backgroundColor: '#FFCCBC' }]}>
+              <Bug size={24} color="#D84315" />
+            </View>
+            <Text style={styles.shortcutTitle}>Peste at Lunas</Text>
+            <Text style={styles.shortcutSubtitle}>DIY Organiko</Text>
           </TouchableOpacity>
         </View>
 

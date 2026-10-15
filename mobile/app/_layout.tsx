@@ -66,6 +66,34 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="calculator"
+              options={{
+                title: 'Kalkulador ng Abono at Spray',
+                headerBackTitle: 'Back',
+              }}
+            />
+            <Stack.Screen
+              name="market-prices"
+              options={{
+                title: 'Bantay Presyo ng Ani (DA)',
+                headerBackTitle: 'Back',
+              }}
+            />
+            <Stack.Screen
+              name="ledger"
+              options={{
+                title: 'Talaan ng Gastos at Kita',
+                headerBackTitle: 'Back',
+              }}
+            />
+            <Stack.Screen
+              name="pest-guide"
+              options={{
+                title: 'Gabay sa Peste at Organiko',
+                headerBackTitle: 'Back',
+              }}
+            />
+            <Stack.Screen
               name="settings/index"
               options={{
                 title: 'Settings',

@@ -17,8 +17,8 @@ exports.aiRouter = (0, express_1.Router)();
 const inMemoryAnalyses = [];
 const inMemoryConversations = [];
 const inMemoryMessages = [];
-// Chat with AgriMate
-exports.aiRouter.post('/chat', auth_js_1.requireAuth, async (req, res) => {
+// Chat with AgriMate (supports both registered farmers and guest farmers)
+exports.aiRouter.post('/chat', auth_js_1.optionalAuth, async (req, res) => {
     try {
         const { message, conversation_id, context } = req.body;
         if (!message || typeof message !== 'string') {

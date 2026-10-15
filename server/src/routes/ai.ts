@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import multer from 'multer';
-import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js';
+import { requireAuth, optionalAuth, AuthenticatedRequest } from '../middleware/auth.js';
 import { askAgriMate, diagnosePlantHealth } from '../services/geminiService.js';
 
 const upload = multer({
@@ -15,8 +15,8 @@ const inMemoryAnalyses: any[] = [];
 const inMemoryConversations: any[] = [];
 const inMemoryMessages: any[] = [];
 
-// Chat with AgriMate
-aiRouter.post('/chat', requireAuth, async (req: AuthenticatedRequest, res: Response) => {
+// Chat with AgriMate (supports both registered farmers and guest farmers)
+aiRouter.post('/chat', optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { message, conversation_id, context } = req.body;
     if (!message || typeof message !== 'string') {

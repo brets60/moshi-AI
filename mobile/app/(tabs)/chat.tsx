@@ -23,6 +23,7 @@ import {
 } from 'lucide-react-native';
 import { api } from '../../src/services/api';
 import { offlineStorage } from '../../src/services/offlineStorage';
+import { answerCropQueryLocally } from '../../src/services/offlineChatService';
 import { Colors, BorderRadius, Spacing } from '../../src/theme/colors';
 import { Input } from '../../src/components/ui/Input';
 import { Card } from '../../src/components/ui/Card';
@@ -39,22 +40,28 @@ interface Message {
 
 const LANGUAGE_PROMPTS = {
   Tagalog: [
-    'Bakit naninilaw ang dahon ng kamatis ko?',
-    'Kailan ang tamang oras ng pagdilig ng gulay?',
-    'Ano ang mabisang organikong pamatay-peste sa talong?',
-    'Paano maghanda ng organikong pataba (compost)?',
+    '🌾 Kailan ang tamang oras ng paglalagay ng abono sa palay?',
+    '🌽 Paano sugpuin ang armyworm o harabas sa mais?',
+    '🍅 Bakit naninilaw ang dahon ng kamatis ko?',
+    '🍆 Ano ang mabisang organikong pamatay-peste sa talong?',
+    '🌸 Bakit nalalagas ang bulaklak ng sili at kamatis?',
+    '🌿 Paano maghanda ng organikong pataba (compost / CalPhos)?',
   ],
   Bisaya: [
-    'Nganong dalag man ang dahon sa akong kamatis?',
-    'Kanus-a ang saktong oras sa pagbisbis sa tanom?',
-    'Unsay epektibo nga pangpatay sa dangan sa talong?',
-    'Unsaon paghimo og organikong abono sa yuta?',
+    '🌾 Kanus-a ang saktong oras sa pag-abono sa humay?',
+    '🌽 Unsaon pagpatay sa harabas o ulod sa mais?',
+    '🍅 Nganong dalag man ang dahon sa akong kamatis?',
+    '🍆 Unsay epektibo nga pangpatay sa dangan sa talong?',
+    '🌸 Nganong mangatagak ang mga bulak sa akong sili?',
+    '🌿 Unsaon paghimo og organikong abono sa yuta?',
   ],
   English: [
-    'Why are my tomato leaves turning yellow?',
-    'How often should I water my vegetables?',
-    'What safe organic spray stops leaf aphids?',
-    'How do I test if my soil needs compost?',
+    '🌾 What is the fertilizer schedule for rice (palay)?',
+    '🌽 How do I control fall armyworm in corn?',
+    '🍅 Why are my tomato leaves turning yellow?',
+    '🍆 What safe organic spray stops aphids and fruit borers?',
+    '🌸 How do I prevent vegetable flower and fruit drop?',
+    '🌿 How do I prepare organic compost and Calcium Phosphate?',
   ],
 };
 
@@ -90,7 +97,7 @@ export default function ChatScreen() {
     setLoading(true);
 
     try {
-      const response = await api.askChat(text.trim());
+      const response = await api.askChat(text.trim(), undefined, { preferredLanguage: selectedLang });
 
       const assistantMsg: Message = {
         id: `assistant_${Date.now()}`,
@@ -104,14 +111,18 @@ export default function ChatScreen() {
 
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err: any) {
-      const errorMsg: Message = {
-        id: `err_${Date.now()}`,
+      // Direct local agricultural response: Never leave the farmer without an answer!
+      const localResponse = answerCropQueryLocally(text.trim(), undefined, { preferredLanguage: selectedLang });
+      const assistantMsg: Message = {
+        id: `assistant_${Date.now()}`,
         role: 'assistant',
-        content:
-          'I am having trouble connecting to the network right now. Basic offline tips: water deeply at the soil base early in the morning and avoid splashing wet soil onto lower leaves.',
+        content: localResponse.answer,
+        cautions: localResponse.cautions,
+        followUps: localResponse.follow_up_suggestions,
+        disclaimer: localResponse.disclaimer,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
-      setMessages((prev) => [...prev, errorMsg]);
+      setMessages((prev) => [...prev, assistantMsg]);
     } finally {
       setLoading(false);
       setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 150);

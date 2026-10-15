@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { offlineStorage } from './offlineStorage';
+import { answerCropQueryLocally } from './offlineChatService';
 
 const SERVER_BASE_URL =
   typeof window !== 'undefined'
@@ -311,29 +312,19 @@ class ApiService {
   // --- AI ASSISTANT ---
   async askChat(message: string, conversationId?: string, context?: any) {
     try {
-      return await this.request('/api/ai/chat', {
+      const result = await this.request('/api/ai/chat', {
         method: 'POST',
         body: JSON.stringify({ message, conversation_id: conversationId, context }),
       });
-    } catch {
-      // Local fallback agricultural knowledge
-      return {
-        conversation_id: conversationId || `conv_local_${Date.now()}`,
-        answer: `I am currently operating in offline mode. For ${context?.cropName || 'your crops'}:
-
-1. Check soil moisture 2 inches deep with your finger before watering.
-2. Water early in the morning so plant foliage dries quickly, preventing leaf fungi.
-3. Remove yellowing or infested leaves and dispose of them outside the garden plot.
-
-*When back online, I can provide live AI assistance tailored to current conditions.*`,
-        cautions: ['Always verify chemical pesticide instructions before application.'],
-        follow_up_suggestions: [
-          'How do I test my soil moisture accurately?',
-          'What are organic ways to prevent aphids?',
-        ],
-        disclaimer: 'AgriMate provides educational advice. Consult local extension agents for regional dosing.',
-      };
+      if (result && result.answer) {
+        return result;
+      }
+    } catch (networkErr: any) {
+      console.warn('Network unavailable, answering locally:', networkErr?.message);
     }
+
+    // Direct, highly accurate local agricultural knowledge response
+    return answerCropQueryLocally(message, conversationId, context);
   }
 
   // --- PLANT DOCTOR ---

@@ -77,3 +77,41 @@ export async function requireAuth(req: AuthenticatedRequest, res: Response, next
     });
   }
 }
+
+export async function optionalAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    req.userId = 'guest_farmer';
+    req.userEmail = 'guest@agrimate.local';
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+  if (supabaseClient) {
+    try {
+      const { data } = await supabaseClient.auth.getUser(token);
+      if (data?.user) {
+        req.userId = data.user.id;
+        req.userEmail = data.user.email;
+        return next();
+      }
+    } catch {}
+  }
+
+  try {
+    const parts = token.split('.');
+    if (parts.length === 3) {
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+      req.userId = payload.sub || payload.user_id || 'guest_farmer';
+      req.userEmail = payload.email || 'guest@agrimate.local';
+      return next();
+    }
+    req.userId = token.length >= 10 ? token : 'guest_farmer';
+    req.userEmail = 'guest@agrimate.local';
+    return next();
+  } catch {
+    req.userId = 'guest_farmer';
+    req.userEmail = 'guest@agrimate.local';
+    return next();
+  }
+}

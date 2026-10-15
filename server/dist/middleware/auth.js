@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.requireAuth = requireAuth;
+exports.optionalAuth = optionalAuth;
 const supabase_js_1 = require("@supabase/supabase-js");
 const config_js_1 = require("../config.js");
 let supabaseClient = null;
@@ -68,5 +69,42 @@ async function requireAuth(req, res, next) {
             error: 'Unauthorized',
             message: 'Invalid session token format.',
         });
+    }
+}
+async function optionalAuth(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        req.userId = 'guest_farmer';
+        req.userEmail = 'guest@agrimate.local';
+        return next();
+    }
+    const token = authHeader.split(' ')[1];
+    if (supabaseClient) {
+        try {
+            const { data } = await supabaseClient.auth.getUser(token);
+            if (data?.user) {
+                req.userId = data.user.id;
+                req.userEmail = data.user.email;
+                return next();
+            }
+        }
+        catch { }
+    }
+    try {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+            req.userId = payload.sub || payload.user_id || 'guest_farmer';
+            req.userEmail = payload.email || 'guest@agrimate.local';
+            return next();
+        }
+        req.userId = token.length >= 10 ? token : 'guest_farmer';
+        req.userEmail = 'guest@agrimate.local';
+        return next();
+    }
+    catch {
+        req.userId = 'guest_farmer';
+        req.userEmail = 'guest@agrimate.local';
+        return next();
     }
 }

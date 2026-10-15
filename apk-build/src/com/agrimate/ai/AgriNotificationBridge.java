@@ -23,4 +23,9 @@ public class AgriNotificationBridge {
     public void showNotification(String title, String message, String type) {
         activity.triggerNativeNotification(title, message, type);
     }
+
+    @JavascriptInterface
+    public void scheduleBackgroundNotification(String title, String message, String type, long delaySeconds) {
+        activity.scheduleBackgroundAlarm(title, message, type, delaySeconds);
+    }
 }

@@ -178,6 +178,37 @@ public class MainActivity extends Activity implements Runnable {
         }
     }
 
+    public void scheduleBackgroundAlarm(String title, String message, String type, long delaySeconds) {
+        try {
+            android.app.AlarmManager am = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (am == null) return;
+
+            Intent intent = new Intent(this, AgriNotificationReceiver.class);
+            intent.putExtra(AgriNotificationReceiver.EXTRA_TITLE, title);
+            intent.putExtra(AgriNotificationReceiver.EXTRA_MESSAGE, message);
+            intent.putExtra(AgriNotificationReceiver.EXTRA_TYPE, type);
+
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= 23) {
+                flags |= PendingIntent.FLAG_IMMUTABLE;
+            }
+            int requestCode = (int) (System.currentTimeMillis() % 100000);
+            PendingIntent sender = PendingIntent.getBroadcast(this, requestCode, intent, flags);
+
+            long triggerAtMillis = System.currentTimeMillis() + (delaySeconds * 1000L);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                am.setExactAndAllowWhileIdle(android.app.AlarmManager.RTC_WAKEUP, triggerAtMillis, sender);
+            } else if (Build.VERSION.SDK_INT >= 19) {
+                am.setExact(android.app.AlarmManager.RTC_WAKEUP, triggerAtMillis, sender);
+            } else {
+                am.set(android.app.AlarmManager.RTC_WAKEUP, triggerAtMillis, sender);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public ValueCallback<Uri[]> getUploadMessage() {
         return uploadMessage;
     }

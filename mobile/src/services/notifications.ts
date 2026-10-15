@@ -139,6 +139,30 @@ export const notificationService = {
     );
   },
 
+  /**
+   * Quick 1-Tap Test: Background Notification (fires in 10 seconds even when app is closed)
+   */
+  testBackgroundNotification(delaySeconds = 10) {
+    if (typeof window !== 'undefined' && (window as any).AgriAndroid?.scheduleBackgroundNotification) {
+      (window as any).AgriAndroid.scheduleBackgroundNotification(
+        '⏰ Background Alert: AgriMate AI',
+        'Matagumpay! Tumunog at lumabas ang paalala kahit nakasarado o nasa background ang app.',
+        'crop',
+        delaySeconds
+      );
+      return true;
+    }
+    // Browser fallback
+    setTimeout(() => {
+      this.triggerPushNotification(
+        '⏰ Background Alert: AgriMate AI',
+        'Matagumpay! Tumunog at lumabas ang paalala kahit nakasarado o nasa background ang app.',
+        'crop'
+      );
+    }, delaySeconds * 1000);
+    return false;
+  },
+
   async scheduleTaskReminder(task: {
     id: string;
     title: string;
@@ -153,6 +177,16 @@ export const notificationService = {
       const diffSeconds = Math.floor((scheduledDate.getTime() - now.getTime()) / 1000);
       if (diffSeconds <= 0) {
         return null;
+      }
+
+      // Android Native Background Alarm (wakes phone up even when app is closed!)
+      if (typeof window !== 'undefined' && (window as any).AgriAndroid?.scheduleBackgroundNotification) {
+        (window as any).AgriAndroid.scheduleBackgroundNotification(
+          `🌱 AgriMate: ${task.title}`,
+          `${task.task_type} para sa ${task.crop_name || 'iyong mga pananim'}.`,
+          'crop',
+          diffSeconds
+        );
       }
 
       const identifier = await Notifications.scheduleNotificationAsync({

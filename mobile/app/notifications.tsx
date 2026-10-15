@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, Alert, TouchableOpacity } from 'react-native';
-import { Bell, Droplets, Sprout, Calendar, CloudRain, Bug, ShieldCheck, Zap } from 'lucide-react-native';
+import { Bell, Droplets, Sprout, Calendar, CloudRain, Bug, ShieldCheck, Zap, Clock } from 'lucide-react-native';
 import { notificationService } from '../src/services/notifications';
 import { permissionManager } from '../src/services/permissions';
 import { api } from '../src/services/api';
@@ -54,6 +54,15 @@ export default function NotificationsScreen() {
   const handleTestPest = () => {
     notificationService.testPestNotification();
     setLastTested('🐛 Alerto sa Peste');
+  };
+
+  const handleTestBackground = () => {
+    notificationService.testBackgroundNotification(10);
+    setLastTested('⏰ Background Alarm (Tutunog sa loob ng 10 segundo - maaari mo nang isara ang app)');
+    Alert.alert(
+      'Nakatakda ang Background Alarm!',
+      'Tutunog at lalabas ang notification pagkatapos ng 10 segundo. Pwede mong pindutin ang Home button o i-swipe away ang app ngayon para masubukan!'
+    );
   };
 
   const isNative = notificationService.isNativeAndroid();
@@ -132,6 +141,16 @@ export default function NotificationsScreen() {
           <Bug size={24} color="#E65100" style={{ marginBottom: 6 }} />
           <Text style={styles.testBtnTitle}>🐛 Alerto sa Peste</Text>
           <Text style={styles.testBtnSub}>Subukan ang alerto sa Fall Armyworm</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.testBtn, { borderColor: '#D1C4E9', backgroundColor: '#F3E5F5' }]}
+          onPress={handleTestBackground}
+          activeOpacity={0.8}
+        >
+          <Clock size={24} color="#6A1B9A" style={{ marginBottom: 6 }} />
+          <Text style={styles.testBtnTitle}>⏰ Subukan ang Background Alarm (10s)</Text>
+          <Text style={styles.testBtnSub}>Tutunog pagkatapos ng 10 segundo kahit nakasara ang app!</Text>
         </TouchableOpacity>
       </View>
 

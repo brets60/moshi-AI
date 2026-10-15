@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   TextInput,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -82,6 +83,7 @@ const INITIAL_ENTRIES: LedgerEntry[] = [
 export default function FarmLedgerScreen() {
   const [entries, setEntries] = useState<LedgerEntry[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Form State
   const [formType, setFormType] = useState<'expense' | 'income'>('expense');
@@ -105,7 +107,14 @@ export default function FarmLedgerScreen() {
     } catch (e) {
       console.warn('Error loading ledger:', e);
       setEntries(INITIAL_ENTRIES);
+    } finally {
+      setRefreshing(false);
     }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadLedger();
   };
 
   const saveEntries = async (updated: LedgerEntry[]) => {
@@ -173,7 +182,10 @@ export default function FarmLedgerScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
+      >
         {/* Header Hero Banner */}
         <Card style={styles.heroBanner}>
           <View style={styles.heroRow}>

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   TextInput,
+  RefreshControl,
 } from 'react-native';
 import {
   TrendingUp,
@@ -150,6 +151,14 @@ export default function MarketPricesScreen() {
   const [selectedRegion, setSelectedRegion] = useState<'luzon' | 'visayas' | 'mindanao'>('luzon');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'butil' | 'gulay'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 600);
+  };
 
   const filteredItems = COMMODITIES.filter((item) => {
     const matchesFilter = selectedFilter === 'all' || item.category === selectedFilter;
@@ -159,7 +168,10 @@ export default function MarketPricesScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
+      >
         {/* Hero Card */}
         <Card style={styles.heroCard}>
           <View style={styles.heroRow}>

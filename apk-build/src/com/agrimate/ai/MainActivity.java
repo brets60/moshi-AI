@@ -12,15 +12,18 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity implements Runnable {
+public class MainActivity extends Activity implements Runnable, View.OnTouchListener {
     public static final int FILE_CHOOSER_RESULT_CODE = 1001;
     public static final int PERMISSION_REQUEST_CODE = 1002;
     public static final String APP_URL = "https://agrimate-ai.vercel.app";
@@ -32,6 +35,11 @@ public class MainActivity extends Activity implements Runnable {
 
     private WebView webView;
     private ValueCallback<Uri[]> uploadMessage;
+
+    // Pull-to-refresh swipe detection state
+    private float touchDownY = 0;
+    private boolean isSwipeDownRefresh = false;
+    private boolean isRefreshing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +71,11 @@ public class MainActivity extends Activity implements Runnable {
             settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
 
+        // Bridge for native Android capabilities & notifications
         webView.addJavascriptInterface(new AgriNotificationBridge(this), "AgriAndroid");
+
+        // Touch listener for pull-to-refresh
+        webView.setOnTouchListener(this);
 
         webView.setWebViewClient(new AgriWebViewClient(this));
         webView.setWebChromeClient(new AgriWebChromeClient(this));
@@ -73,9 +85,63 @@ public class MainActivity extends Activity implements Runnable {
         checkPermissions();
     }
 
+    /**
+     * Native Pull-To-Refresh: detects when user drags down from the top of the app
+     */
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                touchDownY = event.getY();
+                isSwipeDownRefresh = false;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float currentY = event.getY();
+                float deltaY = currentY - touchDownY;
+                // If the user is at the top of the webpage and drags down by > 260px
+                if (webView != null && webView.getScrollY() <= 0 && deltaY > 260 && !isRefreshing) {
+                    isSwipeDownRefresh = true;
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                if (isSwipeDownRefresh && !isRefreshing) {
+                    isRefreshing = true;
+                    triggerAppRefresh();
+                }
+                isSwipeDownRefresh = false;
+                break;
+        }
+        return false; // Crucial: allow WebView to handle all clicks, scrolls, and links normally
+    }
+
+    public void triggerAppRefresh() {
+        isRefreshing = true;
+        runOnUiThread(this);
+    }
+
+    public void onPageFinishedLoading() {
+        isRefreshing = false;
+    }
+
     @Override
     public void run() {
-        checkPermissions();
+        if (isRefreshing) {
+            try {
+                Toast.makeText(
+                    this,
+                    "🔄 Nire-refresh ang AgriMate AI...",
+                    Toast.LENGTH_SHORT
+                ).show();
+                if (webView != null) {
+                    webView.reload();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            checkPermissions();
+        }
     }
 
     public void requestNotificationPermissionFromJs() {

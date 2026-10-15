@@ -29,6 +29,7 @@ import {
   DollarSign,
   Receipt,
   Bug,
+  RefreshCw,
 } from 'lucide-react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { useOffline } from '../../src/context/OfflineContext';
@@ -110,6 +111,13 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.headerIconBtn}
+              onPress={onRefresh}
+              accessibilityLabel="Refresh App"
+            >
+              <RefreshCw size={20} color={Colors.primary} />
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerIconBtn}
               onPress={() => router.push('/notifications')}

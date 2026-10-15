@@ -36,4 +36,10 @@ public class AgriWebViewClient extends WebViewClient {
             view.loadUrl("file:///android_asset/index.html");
         }
     }
+
+    @Override
+    public void onPageFinished(WebView view, String url) {
+        super.onPageFinished(view, url);
+        activity.onPageFinishedLoading();
+    }
 }

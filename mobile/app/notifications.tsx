@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch, Alert, TouchableOpacity, RefreshControl } from 'react-native';
 import { Bell, Droplets, Sprout, Calendar, CloudRain, Bug, ShieldCheck, Zap, Clock } from 'lucide-react-native';
 import { notificationService } from '../src/services/notifications';
 import { permissionManager } from '../src/services/permissions';
@@ -14,6 +14,7 @@ export default function NotificationsScreen() {
   const [pestWarnings, setPestWarnings] = useState(true);
   const [tasks, setTasks] = useState<any[]>([]);
   const [lastTested, setLastTested] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadReminders();
@@ -25,7 +26,14 @@ export default function NotificationsScreen() {
       setTasks(data || []);
     } catch (e) {
       console.warn('Failed to load upcoming tasks:', e);
+    } finally {
+      setRefreshing(false);
     }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadReminders();
   };
 
   const handleToggleMaster = async (val: boolean) => {
@@ -68,7 +76,11 @@ export default function NotificationsScreen() {
   const isNative = notificationService.isNativeAndroid();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
+    >
       {/* Zero Cost Free Push Notification Banner */}
       <Card style={styles.statusBanner}>
         <View style={styles.badgeRow}>

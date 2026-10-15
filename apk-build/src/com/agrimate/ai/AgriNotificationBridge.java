@@ -28,4 +28,9 @@ public class AgriNotificationBridge {
     public void scheduleBackgroundNotification(String title, String message, String type, long delaySeconds) {
         activity.scheduleBackgroundAlarm(title, message, type, delaySeconds);
     }
+
+    @JavascriptInterface
+    public void reloadApp() {
+        activity.triggerAppRefresh();
+    }
 }

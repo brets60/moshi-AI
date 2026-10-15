@@ -151,6 +151,48 @@ export function answerCropQueryLocally(
           'Paano maiiwasan ang blossom-end rot o pangingitim ng puwit ng kamatis?',
           'Bakit nalalagas ang bulaklak ng talong o kamatis?',
         ];
+      } else if (hasYellowing) {
+        answer = `🍅 **Sanhi at Lunas sa Paninilaw ng Dahon ng ${crop}:**
+
+1. **Sobra sa Tubig / Mabagal na Drainage (Pinakakaraniwan):**
+   - *Palatandaan:* Naninilaw at nanlalata ang mga dahon sa ibaba; maputik o laging basang-basa ang lupa.
+   - *Lunas:* Bawasan ang dilig. Mag-drain ng kanal sa paligid ng tanim. Diligan lamang kapag tuyo na ang unang 2 pulgada ng lupa.
+
+2. **Kulang sa Nitrogen (Pataba):**
+   - *Palatandaan:* Ang pinakamatatandang dahon sa ibaba ang unang naninilaw habang mapusyaw na berde ang itaas.
+   - *Lunas:* Maglagay ng compost, dumi ng manok (vermicast), o kaunting Urea/14-14-14 mga 5 cm ang layo sa puno.
+
+3. **Early Blight (Fungus):**
+   - *Palatandaan:* Dilaw na dahon na may bilog na sunog o batik na parang target board.
+   - *Lunas:* Pitasin ang apektadong dahon sa ibaba. Mag-spray ng organikong baking soda spray (1 kutsaritang baking soda + kaunting langis sa 1L tubig) o bio-fungicide.`;
+        followUps = [
+          'Paano maiiwasan ang blossom-end rot o maitim na puwit ng kamatis?',
+          'Bakit nalalagas ang bulaklak ng kamatis at talong?',
+        ];
+      } else if (q.includes('kulot') || q.includes('kulubot') || q.includes('curl')) {
+        answer = `🌶️ **Lunas sa Pagkukulot ng Dahon ng ${crop} (Leaf Curl Virus / Thrips):**
+
+- **Sanhi:** Dala ng mga maliliit na insektong sumisipsip ng katas tulad ng whiteflies, thrips, o aphids.
+- **Mabisang Solusyon:**
+  1. **Yellow Sticky Traps:** Maglagay ng dilaw na plastik na may langis o pandikit sa paligid ng taniman upang mahuli ang mga whiteflies.
+  2. **Sili-Bawang-Sabon Spray:** Magdikdik ng 5 siling labuyo at 3 butil ng bawang, ihalo sa 1 litrong tubig na may 1 kutsaritang liquid dishwashing soap. I-spray sa ilalim ng dahon 2 beses sa isang linggo tuwing hapon.
+  3. **Alisin ang Matinding Apektado:** Kung stunted o bansot na ang tanim, bunutin at ibaon upang hindi mahawa ang katabing mga halaman.`;
+        followUps = [
+          'Paano puksain ang aphids at whiteflies?',
+          `Anong organikong pataba ang maganda sa ${crop}?`,
+        ];
+      } else if (q.includes('blossom') || q.includes('puwit') || q.includes('itim sa bunga')) {
+        answer = `🍅 **Pangingitim ng Puwit ng Bunga (Blossom-End Rot) sa ${crop}:**
+
+- **Sanhi:** Kakulangan sa **Calcium** sa panahon ng mabilis na paglaki ng bunga, o hindi pantay na pagdidilig na pumipigil sa pagsipsip ng calcium.
+- **Paano Lunasan:**
+  1. **CalPhos Spray (Calcium Phosphate):** Mag-ihaw ng balat ng itlog hanggang maging medyo tostado, ibabad sa sukang tuba (1 bahagi itlog sa 10 bahaging suka) sa loob ng 10 araw. Ihalo ang 2 kutsara sa 1 litrong tubig at i-spray sa mga dahon at bunga linggu-linggo.
+  2. **Pantay na Pagdilig:** Huwag pabayaang matuyot nang sobra ang lupa bago diligan; ang paiba-ibang tuyo-basa ang nagdudulot ng blossom-end rot.
+  3. **Mulching:** Takpan ng tuyong dayami ang paligid ng puno upang maging pantay ang moisture ng lupa.`;
+        followUps = [
+          'Paano gumawa ng CalPhos gamit ang balat ng itlog?',
+          'Kailan dapat mag-abono ng Potassium sa kamatis?',
+        ];
       } else if (hasFlowerDrop) {
         answer = `🌸 **Solusyon sa Pagkalagas ng Bulaklak ng ${crop}:**
 
@@ -160,6 +202,17 @@ export function answerCropQueryLocally(
         followUps = [
           'Paano gumawa ng CalPhos gamit ang balat ng itlog?',
           'Paano puksain ang fruit borer sa talong at kamatis?',
+        ];
+      } else if (q.includes('fruit borer') || q.includes('butas') || q.includes('peste')) {
+        answer = `🐛 **Pagkontrol sa Fruit Borer at Uod sa ${crop}:**
+
+1. **Pruning ng Sirang Bunga:** Pitasin agad ang mga bunga at talbos na may butas at ibaon sa lupa upang hindi makalabas ang uod.
+2. **Pheromone Traps:** Maglagay ng yellow sticky traps at lure traps upang mahuli ang mga insektong lumilipad bago makapangitlog sa bulaklak.
+3. **Kakawate at Sili Spray:** Magdikdik ng dahon ng kakawate (madre de cacao) at siling labuyo na may kaunting sabon; i-spray linggu-linggo tuwing hapon.
+4. **Bacillus thuringiensis (Bt):** Isang ligtas at organikong pambala na pumupuksa lamang sa mga uod nang hindi nakalalason sa tao o bubuyog.`;
+        followUps = [
+          'Anong organikong pataba ang maganda sa pamumunga?',
+          'Paano maiiwasan ang paninilaw ng dahon ng kamatis?',
         ];
       } else {
         answer = `🌱 **Pangangalaga ng ${crop}:**
